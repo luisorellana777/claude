@@ -2,6 +2,7 @@
 paths:
   - "docs/**"
   - "**/docs/**"
+  - "**/civia-documentation/**"
 ---
 
 # Documentation standards

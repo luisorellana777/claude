@@ -14,7 +14,10 @@
       "Bash(cat *)",
       "Bash(head *)",
       "Bash(wc *)",
-      "Bash(file *)"
+      "Bash(file *)",
+      "Bash(cd *)",
+      "Bash(mkdir *)",
+      "Bash(test *)"
     ]
   },
   "env": {

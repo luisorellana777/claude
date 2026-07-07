@@ -21,9 +21,14 @@ This Claude Code project helps an agent read a software codebase and produce acc
 ### Option A — Document a project from this repo
 
 1. Start Claude Code in this repository.
-2. Add the target codebase: `/add-dir /path/to/target-project`
-3. Run `/document-project` with an optional path: `/document-project /path/to/target-project`
-4. Review generated files under `docs/` in the target project (or a path you specify).
+2. **Add the target codebase** (required when documenting outside this repo):
+   `/add-dir "/path/to/target-project"`
+3. Run `/document-project` with an optional path and output folder:
+   `/document-project "/path/to/target-project" civia-documentation`
+4. Confirm the agent reports **Files written** with absolute paths.
+5. Review generated files under `docs/` (default) or your custom folder in the target project.
+
+**Important:** The skill writes files to disk under `<target-project>/<output-folder>/`. If you only see an architecture summary in chat and no files on disk, the run did not complete — re-run after `/add-dir` and ensure you are not in plan-only mode.
 
 ### Option B — Copy config into the target repo
 
@@ -39,6 +44,7 @@ This Claude Code project helps an agent read a software codebase and produce acc
 4. **Write for developers.** Prefer clear explanations, diagrams where helpful, and runnable commands verified against project config.
 5. **Minimal scope.** Document what exists; mark unknowns as `TBD` or `Not found in codebase` instead of guessing.
 6. **Output location.** Default output is `docs/` at the target project root unless the user specifies otherwise.
+7. **Write files, not chat.** `/document-project` must use the Write tool to create `README.md`, `architecture.md`, `development.md`, and `api-reference.md` under the output folder. A chat-only summary is not a completed run.
 
 ## Default documentation set
 

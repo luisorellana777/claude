@@ -16,11 +16,51 @@ allowed-tools: Read Grep Glob Write Edit Bash
 
 You are documenting a software project. Follow this workflow exactly. Do not skip discovery; do not invent details.
 
+## Critical — file output is mandatory
+
+**This task is NOT complete until documentation files exist on disk.**
+
+- You **MUST** use the **Write** tool to create every documentation file listed in Phase 3.
+- Do **NOT** paste full documentation in chat instead of writing files.
+- Do **NOT** stop after Phase 1 or Phase 2 with an architecture summary in chat.
+- Phase 5 is a short report only — the real deliverable is the files on disk.
+- If any required file is missing after Phase 3, go back and write it before finishing.
+
 ## Target
 
+Resolve paths before discovery:
+
 - **Project path:** `$target-path` (if empty, use the repository root or the path from `/add-dir`)
-- **Output directory:** `$output-dir` (if empty, use `docs/` under the project path)
+- **Output folder name:** `$output-dir` (if empty, use `docs`)
+- **Absolute output path:** `<project-path>/<output-folder>/`
 - **Arguments (raw):** $ARGUMENTS
+
+### Path rules
+
+1. **Quote paths with spaces** (common on Windows). Example:
+   `"C:\Users\...\Data Science\...\rag-civia-mandate-service"`
+2. When the target project is **outside** the current working directory, ensure it is accessible. If Write fails or the path is not readable, tell the user to run `/add-dir "<project-path>"` and retry.
+3. Use **absolute paths** in every Write call, e.g.:
+   `"<project-path>/<output-folder>/README.md"`
+4. For Bash on Windows paths with spaces, always `cd` with quotes:
+   `cd "C:\path with spaces\project" && ls -la`
+
+### Files to create (under absolute output path)
+
+| File | Purpose |
+|------|---------|
+| `README.md` | Index, quick start, links |
+| `architecture.md` | Components, diagrams, data flow |
+| `development.md` | Setup, build, test, troubleshooting |
+| `api-reference.md` | Public HTTP/CLI/library surface |
+
+## Phase 0 — Resolve scope
+
+1. Confirm `<project-path>` from `$target-path` or `/add-dir`.
+2. Confirm `<output-folder>` from `$output-dir` or default `docs`.
+3. Compute `<absolute-output-path> = <project-path>/<output-folder>/`.
+4. Read templates from `${CLAUDE_PROJECT_DIR}/.claude/skills/document-project/templates/`.
+5. Read checklist from `${CLAUDE_PROJECT_DIR}/.claude/skills/document-project/checklist.md`.
 
 ## Phase 1 — Discovery (read only)
 
@@ -52,11 +92,11 @@ From discovery, determine:
 
 If the project is a library, focus on public API and usage patterns. If it is a CLI, document commands and flags. If it is a web app, document routes and auth if present.
 
-## Phase 3 — Write documentation
+## Phase 3 — Write documentation (required)
 
-Create the output directory if it does not exist. Write these files unless the user requested a subset:
+**Use the Write tool for each file below.** Create `<absolute-output-path>` if needed (Write creates parent directories).
 
-### `docs/README.md`
+### `<absolute-output-path>/README.md`
 
 Use structure from `templates/README-template.md`. Include:
 
@@ -65,7 +105,7 @@ Use structure from `templates/README-template.md`. Include:
 - Quick start (minimal steps to run locally)
 - Table of contents
 
-### `docs/architecture.md`
+### `<absolute-output-path>/architecture.md`
 
 Use structure from `templates/architecture-template.md`. Include:
 
@@ -75,7 +115,7 @@ Use structure from `templates/architecture-template.md`. Include:
 - Key design decisions visible in code (routing, layering, patterns)
 - External dependencies and integrations
 
-### `docs/development.md`
+### `<absolute-output-path>/development.md`
 
 Use structure from `templates/development-template.md`. Include:
 
@@ -85,7 +125,7 @@ Use structure from `templates/development-template.md`. Include:
 - Environment variables (name, purpose, default if documented)
 - Common troubleshooting tied to actual project setup
 
-### `docs/api-reference.md`
+### `<absolute-output-path>/api-reference.md`
 
 Use structure from `templates/api-reference-template.md`. Include:
 
@@ -95,17 +135,25 @@ Use structure from `templates/api-reference-template.md`. Include:
 
 Read templates from this skill's `templates/` folder for section headings; replace every placeholder with content from the codebase.
 
+## Phase 3.5 — Verify files on disk
+
+Before Phase 4, confirm all four files exist:
+
+1. Use Glob on `<absolute-output-path>/**/*.md`.
+2. Use Read on each file to confirm non-empty content.
+3. If any file is missing or empty, write it now. **Do not finish until all four exist.**
+
 ## Phase 4 — Quality check
 
-Before finishing, verify every item in `checklist.md` in this skill directory. Fix any failures.
+Before finishing, verify every item in `checklist.md` in this skill directory (treating `<output-folder>` as the docs root). Fix any failures with Write/Edit.
 
 ## Phase 5 — Report to user
 
 Respond with:
 
 1. **Summary** — What was documented and for which project path.
-2. **Files written** — List of paths created or updated.
-3. **Highlights** — 3–5 key architectural or usage findings.
+2. **Files written** — Full absolute paths of every file created or updated (must list all four).
+3. **Highlights** — 3–5 key architectural or usage findings (brief; details belong in the files).
 4. **Gaps** — Anything you could not determine from the codebase.
 5. **Suggested next steps** — Optional deeper docs (ADRs, runbooks) if relevant.
 
@@ -114,4 +162,4 @@ Respond with:
 - Do not modify application source code unless the user explicitly asked to fix code while documenting.
 - Do not copy large blocks of source into docs; summarize and link to files.
 - Do not document credentials, tokens, or private keys.
-- Prefer updating existing `docs/` pages over duplicating content in README unless README is the agreed output.
+- Prefer updating existing pages under `<output-folder>` over duplicating content in the project README unless README is the agreed output.
