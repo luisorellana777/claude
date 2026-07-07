@@ -1,0 +1,15 @@
+# Local Claude Code overrides (optional)
+.claude/settings.local.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Generated documentation in this meta-repo (if you test against a sample here)
+sample-target/docs/
