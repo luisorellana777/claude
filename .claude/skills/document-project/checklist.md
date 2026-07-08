@@ -20,13 +20,14 @@ Complete this checklist before marking a documentation run as finished.
 
 ## Completeness (default set)
 
-Replace `<output-folder>` with the resolved output directory (default: `docs`).
+All files must be under `<project-path>/doc/` (fixed output folder).
 
-- [ ] `<output-folder>/README.md` exists on disk with index and quick start (verified with Read)
-- [ ] `<output-folder>/architecture.md` exists on disk with component overview
-- [ ] `<output-folder>/development.md` exists on disk with setup and test instructions
-- [ ] `<output-folder>/api-reference.md` exists on disk or N/A is explained (e.g., internal-only app)
+- [ ] `doc/README.md` exists on disk with index and quick start (verified with Read)
+- [ ] `doc/architecture.md` exists on disk with component overview
+- [ ] `doc/development.md` exists on disk with setup and test instructions
+- [ ] `doc/api-reference.md` exists on disk or N/A is explained (e.g., internal-only app)
 - [ ] All four files were created with the Write tool (not chat-only summaries)
+- [ ] No documentation files were written to the project root (only under `doc/`)
 
 ## Quality
 

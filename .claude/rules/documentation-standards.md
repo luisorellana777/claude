@@ -1,8 +1,7 @@
 ---
 paths:
-  - "docs/**"
-  - "**/docs/**"
-  - "**/civia-documentation/**"
+  - "doc/**"
+  - "**/doc/**"
 ---
 
 # Documentation standards
@@ -33,12 +32,14 @@ Apply these rules when writing or editing generated documentation.
 
 ## File naming and layout
 
+- All generated documentation lives under `doc/` at the target project root — never in the project root itself.
 - Use lowercase kebab-case for doc filenames: `architecture.md`, `api-reference.md`.
 - Cross-link between docs with relative Markdown links.
-- Keep `docs/README.md` as the entry point with links to all other pages.
+- Keep `doc/README.md` as the entry point with links to all other pages.
 
 ## What to avoid
 
+- Writing documentation files to the project root (e.g. `ARCHITECTURE.md`, `DEVELOPMENT.md` at repo root).
 - Marketing language or unsubstantiated claims ("blazing fast", "enterprise-grade").
 - Duplicating auto-generated API docs unless you are curating and explaining them.
 - Documenting private/internal implementation details unless the user asked for deep internals.

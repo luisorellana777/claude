@@ -21,14 +21,14 @@ This Claude Code project helps an agent read a software codebase and produce acc
 ### Option A — Document a project from this repo
 
 1. Start Claude Code in this repository.
-2. **Add the target codebase** (required when documenting outside this repo):
-   `/add-dir "/path/to/target-project"`
-3. Run `/document-project` with an optional path and output folder:
-   `/document-project "/path/to/target-project" civia-documentation`
-4. Confirm the agent reports **Files written** with absolute paths.
-5. Review generated files under `docs/` (default) or your custom folder in the target project.
+2. **Add the target codebase** (required when documenting outside this repo). Prefer a **relative path** on Windows (quoted absolute paths can break `/add-dir`):
+   `/add-dir ..\..\Civia\rag-civia-mandate-service`
+3. Run `/document-project` with the target path:
+   `/document-project ..\..\Civia\rag-civia-mandate-service`
+4. Confirm the agent reports **Files written** with absolute paths under `doc/`.
+5. Review generated files under `doc/` in the target project.
 
-**Important:** The skill writes files to disk under `<target-project>/<output-folder>/`. If you only see an architecture summary in chat and no files on disk, the run did not complete — re-run after `/add-dir` and ensure you are not in plan-only mode.
+**Important:** The skill writes files to disk under `<target-project>/doc/` only. Never to the project root. If you only see an architecture summary in chat and no files on disk, the run did not complete — re-run after `/add-dir` and ensure you are not in plan-only mode.
 
 ### Option B — Copy config into the target repo
 
@@ -43,17 +43,17 @@ This Claude Code project helps an agent read a software codebase and produce acc
 3. **Match the stack.** Detect languages, frameworks, and build tools from the repo; do not assume a stack.
 4. **Write for developers.** Prefer clear explanations, diagrams where helpful, and runnable commands verified against project config.
 5. **Minimal scope.** Document what exists; mark unknowns as `TBD` or `Not found in codebase` instead of guessing.
-6. **Output location.** Default output is `docs/` at the target project root unless the user specifies otherwise.
-7. **Write files, not chat.** `/document-project` must use the Write tool to create `README.md`, `architecture.md`, `development.md`, and `api-reference.md` under the output folder. A chat-only summary is not a completed run.
+6. **Output location.** Generated documentation **must** go in `doc/` at the target project root. Never write documentation to the project root or any other folder.
+7. **Write files, not chat.** `/document-project` must use the Write tool to create `doc/README.md`, `doc/architecture.md`, `doc/development.md`, and `doc/api-reference.md`. A chat-only summary is not a completed run.
 
 ## Default documentation set
 
-When the user does not request a subset, generate:
+When the user does not request a subset, generate under `doc/`:
 
-- `docs/README.md` — Documentation index and quick start
-- `docs/architecture.md` — System overview, components, data flow
-- `docs/development.md` — Setup, build, test, and contribution workflow
-- `docs/api-reference.md` — Public APIs, endpoints, or module surface (if applicable)
+- `doc/README.md` — Documentation index and quick start
+- `doc/architecture.md` — System overview, components, data flow
+- `doc/development.md` — Setup, build, test, and contribution workflow
+- `doc/api-reference.md` — Public APIs, endpoints, or module surface (if applicable)
 
 Use templates in `.claude/skills/document-project/templates/` as structure guides, not as filler text.
 

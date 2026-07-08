@@ -18,6 +18,9 @@
       "Bash(cd *)",
       "Bash(mkdir *)",
       "Bash(test *)"
+    ],
+    "additionalDirectories": [
+      "../../Civia/rag-civia-mandate-service"
     ]
   },
   "env": {

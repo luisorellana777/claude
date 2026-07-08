@@ -5,7 +5,7 @@ A [Claude Code](https://code.claude.com) project that configures an agent to rea
 ## What it does
 
 - Explores a target project (structure, stack, entry points, tests, public APIs)
-- Writes a default documentation set under `docs/`
+- Writes a default documentation set under `doc/` in the target project
 - Enforces accuracy via a discovery-first workflow and quality checklist
 - Supports large repos through a dedicated `codebase-doc-writer` subagent
 
@@ -103,33 +103,45 @@ claude
 
 ### 4. Point at the project to document
 
-Inside Claude Code (quote paths that contain spaces):
+Inside Claude Code:
 
 ```text
-/add-dir "/path/to/target-software"
-/document-project "/path/to/target-software"
+/add-dir ../path/to/target-software
+/document-project ../path/to/target-software
 ```
 
-Or with a custom output directory:
+**Example** (from this repo, using a relative path — recommended on Windows):
 
 ```text
-/document-project "/path/to/target-software" custom-docs
-```
-
-**Example** (Windows path with spaces and custom output folder):
-
-```text
-/add-dir "<PATH-TO-YOUR-PROJECT>\rag-civia-mandate-service"
-/document-project "<PATH-TO-YOUR-PROJECT>\rag-civia-mandate-service" civia-documentation
+/add-dir ..\..\Civia\rag-civia-mandate-service
+/document-project ..\..\Civia\rag-civia-mandate-service
 ```
 
 This writes documentation to:
 
 ```
-<PATH-TO-YOUR-PROJECT>\rag-civia-mandate-service\civia-documentation\
+..\..\Civia\rag-civia-mandate-service\doc\
+├── README.md
+├── architecture.md
+├── development.md
+└── api-reference.md
 ```
 
-The agent writes files to `<target-software>/custom-docs/` (or `docs/` if omitted). Verify the **Files written** list in the response — chat-only summaries mean the run did not finish.
+All generated documentation **must** go in `doc/` — never in the project root or a custom folder.
+
+#### Windows: `/add-dir` and paths with spaces
+
+Claude Code can mis-parse **quoted absolute paths** in `/add-dir`, concatenating them to the current directory (e.g. `...\claude"C:\Users\...`). Use one of these instead:
+
+| Method | Command |
+|--------|---------|
+| **Relative path (recommended)** | `/add-dir ..\..\Civia\rag-civia-mandate-service` |
+| **At startup** | `claude --add-dir "..\..\Civia\rag-civia-mandate-service"` |
+| **Settings (persistent)** | Add `"../../Civia/rag-civia-mandate-service"` to `permissions.additionalDirectories` in `.claude/settings.json` |
+
+For `/document-project`, relative paths work the same way. Only use quoted absolute paths if your Claude Code version handles them correctly.
+
+The agent writes files to `<target-software>/doc/` only. Verify the **Files written** list in the response — chat-only summaries mean the run did not finish.
 
 ### 5. Alternative — install into the target repo
 
@@ -141,14 +153,16 @@ claude
 /document-project
 ```
 
-## Generated documentation (default)
+## Generated documentation
+
+All files are written to `doc/` under the target project:
 
 | File | Contents |
 |------|----------|
-| `docs/README.md` | Index and quick start |
-| `docs/architecture.md` | Components, diagrams, dependencies |
-| `docs/development.md` | Setup, build, test, troubleshooting |
-| `docs/api-reference.md` | HTTP, CLI, or library public surface |
+| `doc/README.md` | Index and quick start |
+| `doc/architecture.md` | Components, diagrams, dependencies |
+| `doc/development.md` | Setup, build, test, troubleshooting |
+| `doc/api-reference.md` | HTTP, CLI, or library public surface |
 
 ## Primary prompt
 
