@@ -2,47 +2,89 @@
 
 {{API_SURFACE_SUMMARY}}
 
-<!-- Choose the sections that apply: HTTP API, CLI, library exports -->
+Document the **full public surface** found in code. Prefer completeness over brevity: every public HTTP endpoint, CLI command, or exported API should appear here with parameters and response shape derived from DTOs/handlers.
+
+## Overview
+
+| Surface | Present? | Entry points | Evidence |
+|---------|----------|--------------|----------|
+| HTTP API | {{YES_NO}} | `{{PATHS}}` | `{{PATH}}` |
+| CLI | {{YES_NO}} | `{{PATHS}}` | `{{PATH}}` |
+| Library exports | {{YES_NO}} | `{{PATHS}}` | `{{PATH}}` |
+
+```mermaid
+flowchart LR
+  Client --> API
+  API --> Services
+  Services --> Store
+  Services --> External
+```
+
+## Authentication and authorization
+
+{{AUTH_NARRATIVE}}
+
+| Mechanism | Roles / scopes | How enforced | Evidence |
+|-----------|----------------|--------------|----------|
+| {{MECH}} | {{ROLES}} | {{ANNOTATION_OR_FILTER}} | `{{PATH}}` |
 
 ## HTTP API
 
-<!-- Skip this section if no HTTP server is present -->
+Base URL / context path: `{{BASE_URL}}`
 
-Base URL: `{{BASE_URL}}` (local / default)
+### Endpoint index
 
-| Method | Path | Description | Handler / source |
-|--------|------|-------------|------------------|
-| {{METHOD}} | `{{PATH}}` | {{DESCRIPTION}} | `{{SOURCE_FILE}}` |
+| Method | Path | Summary | Auth | Handler |
+|--------|------|---------|------|---------|
+| {{METHOD}} | `{{PATH}}` | {{SUMMARY}} | {{AUTH}} | `{{SOURCE}}` |
 
 ### {{ENDPOINT_NAME}}
 
 - **Method / path:** `{{METHOD}} {{PATH}}`
-- **Description:** {{DESCRIPTION}}
-- **Source:** `{{SOURCE_FILE}}`
+- **Summary:** {{SUMMARY}}
+- **Auth:** {{AUTH_REQUIREMENTS}}
+- **Handler:** `{{SOURCE_FILE}}` → `{{METHOD_OR_FUNCTION}}`
+- **Service / use-case:** `{{SERVICE_CALL}}`
 
-**Request**
+#### Request
 
-<!-- Query, path, body parameters -->
+| Parameter | In | Type | Required | Validation | Description |
+|-----------|-----|------|----------|------------|-------------|
+| {{NAME}} | path/query/body/header | {{TYPE}} | {{REQ}} | {{CONSTRAINTS}} | {{DESC}} |
 
-| Parameter | In | Type | Required | Description |
-|-----------|-----|------|----------|-------------|
-| {{NAME}} | {{in}} | {{TYPE}} | {{REQ}} | {{DESC}} |
-
-**Response**
-
-{{RESPONSE_DESCRIPTION}}
-
-**Example**
+**Request body schema** (from DTO / record / OpenAPI if present):
 
 ```{{LANGUAGE}}
-{{EXAMPLE}}
+{{REQUEST_SCHEMA_OR_EXAMPLE}}
 ```
+
+#### Response
+
+| Status | Meaning | Body type |
+|--------|---------|-----------|
+| {{CODE}} | {{MEANING}} | {{TYPE}} |
+
+**Response body schema:**
+
+```{{LANGUAGE}}
+{{RESPONSE_SCHEMA_OR_EXAMPLE}}
+```
+
+#### Behavior notes
+
+{{SIDE_EFFECTS_ASYNC_VALIDATION_PAGINATION}}
+
+#### Errors
+
+| Condition | Status / error | Evidence |
+|-----------|----------------|----------|
+| {{CONDITION}} | {{STATUS}} | `{{PATH}}` |
 
 ---
 
-## CLI
+<!-- Repeat "### {{ENDPOINT_NAME}}" for every public endpoint. Do not collapse into a table-only doc. -->
 
-<!-- Skip if no CLI -->
+## CLI
 
 Invocation: `{{CLI_BIN}}`
 
@@ -54,11 +96,15 @@ Invocation: `{{CLI_BIN}}`
 
 {{COMMAND_DETAILS}}
 
+**Flags / args:**
+
+| Flag | Required | Description |
+|------|----------|-------------|
+| {{FLAG}} | {{REQ}} | {{DESC}} |
+
 ---
 
 ## Library / module exports
-
-<!-- For libraries: public classes, functions, types -->
 
 | Export | Kind | Description | Source |
 |--------|------|-------------|--------|
@@ -68,16 +114,26 @@ Invocation: `{{CLI_BIN}}`
 
 {{SYMBOL_DETAILS}}
 
+**Signature / contract:**
+
+```{{LANGUAGE}}
+{{SIGNATURE}}
+```
+
 ---
 
-## Authentication
+## Error model
 
-<!-- If applicable; otherwise state "No authentication layer found" -->
+{{ERROR_NARRATIVE}}
 
-{{AUTH_NOTES}}
+| Error type / code | When | Shape | Evidence |
+|-------------------|------|-------|----------|
+| {{ERROR}} | {{WHEN}} | {{SHAPE}} | `{{PATH}}` |
 
-## Errors
+## Pagination, filtering, and sorting
 
-<!-- Common error shapes or status codes if documented in code -->
+{{PAGINATION_NOTES_OR_NONE}}
 
-{{ERROR_NOTES}}
+## Gaps
+
+- {{GAP_OR_TBD}}

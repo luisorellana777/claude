@@ -13,3 +13,5 @@ Thumbs.db
 
 # Generated documentation in this meta-repo (if you test against a sample here)
 sample-target/docs/
+# Accidental writes when documenting an external project — never commit toolkit doc/
+doc/

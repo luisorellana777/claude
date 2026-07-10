@@ -15,6 +15,23 @@ allowed-tools: Read Grep Glob Write Edit Bash
 
 You are documenting a software project. Follow this workflow exactly. Do not skip discovery; do not invent details.
 
+**Division of responsibility:** This skill owns the workflow, paths, templates, checklist, and report. The forked agent `codebase-doc-writer` supplies persona, tools, and model — it must execute *this* prompt, not a parallel copy of these steps.
+
+## Critical — depth and diagrams (mandatory)
+
+Shallow summaries are a **failed** run. Documentation must be useful to an engineer onboarding to the codebase.
+
+1. **Deep analysis:** Read controllers, services/facades, repositories, AI/clients, security config, application config, Docker/K8s when present — not only the README and one entry class.
+2. **Architecture depth:** Every major component gets a full subsection (responsibility, collaborators, I/O, failure modes, evidence). Include **at least three** mermaid diagrams in `architecture.md`:
+   - system context
+   - component / layer diagram
+   - at least one sequence diagram for a primary flow
+   - plus ER or deployment diagram when data model or deploy manifests exist
+3. **API depth:** Document **every** public HTTP endpoint (or CLI/library export) with request/response fields from DTOs/handlers — not a table-only index.
+4. **Development depth:** Include profiles/env, local dependencies, project layout diagram, where-to-change map, Docker/Compose/K8s when evidenced, and concrete troubleshooting.
+5. **No filler:** Prefer evidence-backed detail over generic Spring/RAG boilerplate. If something is unknown, mark `TBD` / `Not found in codebase`.
+6. **Length heuristic:** `architecture.md` and `api-reference.md` should each be substantial (typically multiple screens of content for a non-trivial service). A one-page architecture for a multi-package service is insufficient.
+
 ## Critical — file output is mandatory
 
 **This task is NOT complete until documentation files exist on disk.**
@@ -69,15 +86,17 @@ Resolve paths before discovery:
 
 ## Phase 0 — Resolve scope
 
-1. Confirm `<project-path>` from `$target-path` or `/add-dir`.
+1. Confirm `<project-path>` from `$target-path` / `$ARGUMENTS` (required when documenting an external project). Prefer resolving a relative path against the current working directory to an absolute path before any Write.
 2. Set `<output-folder>` to **`doc`** (never use `$output-dir` or any other value).
 3. Compute `<absolute-output-path> = <project-path>/doc/`.
-4. Read templates from `${CLAUDE_PROJECT_DIR}/.claude/skills/document-project/templates/`.
-5. Read checklist from `${CLAUDE_PROJECT_DIR}/.claude/skills/document-project/checklist.md`.
+4. **Access gate (mandatory):** list the target project root (e.g. `ls` / Glob / Read of its README or `build.gradle` / `package.json`). If the target is not readable, **STOP immediately**. Tell the user to run `/add-dir` with a relative path. Do **not** write files. Do **not** fall back to documenting the current toolkit repo. Do **not** invent content from the project name.
+5. **Wrong-target guard:** `${CLAUDE_PROJECT_DIR}` is this documentation toolkit. Only write under it if `<project-path>` resolves to that same directory on purpose. When `$ARGUMENTS` points at another project (e.g. `..\..\Civia\rag-civia-mandate-service`), writing under `${CLAUDE_PROJECT_DIR}/doc/` is a **failure**.
+6. Read templates from `${CLAUDE_PROJECT_DIR}/.claude/skills/document-project/templates/`.
+7. Read checklist from `${CLAUDE_PROJECT_DIR}/.claude/skills/document-project/checklist.md`.
 
-## Phase 1 — Discovery (read only)
+## Phase 1 — Discovery (read only, thorough)
 
-Explore the target project systematically:
+Explore the target project systematically. Prefer **breadth then depth** — map the tree, then open the important files.
 
 1. List the root directory and note top-level files and folders.
 2. Read the existing README, LICENSE, and any existing `doc/` content.
@@ -85,79 +104,75 @@ Explore the target project systematically:
 4. Locate entry points: `main`, `index`, server bootstrap, CLI entry, `app.py`, `main.go`, etc.
 5. Map major directories and their responsibilities.
 6. Find how to install, build, test, and run (scripts, Makefile, CI workflows).
-7. Identify public interfaces: HTTP routes, GraphQL, gRPC, CLI subcommands, exported packages/modules.
+7. Identify public interfaces: HTTP routes, GraphQL, gRPC, CLI subcommands, exported packages/modules — **open each controller/router file**.
 8. Note external services: databases, queues, caches, third-party APIs (from config and code).
+9. **Deep pass (required for non-trivial apps):**
+   - Read each public controller/handler and its request/response DTOs
+   - Read primary service/facade/coordinator classes and trace calls to repositories and external clients
+   - Read persistence models and repository interfaces
+   - Read security / auth configuration
+   - Read `application*.yml` / `.env.example` / Compose / K8s manifests when present
+   - Skim tests for behavioral clues when source is ambiguous
 
-Use Grep and Glob to find patterns (`router`, `Route`, `@app`, `export`, `public class`, etc.) appropriate to the stack.
+Use Grep and Glob to find patterns (`router`, `Route`, `@app`, `export`, `public class`, `@RestController`, etc.) appropriate to the stack.
 
-Record a short **discovery notes** section (for yourself) listing key files inspected.
+Record a short **discovery notes** section (for yourself) listing key files inspected — aim for **dozens of files** on a medium service, not 3–5.
 
-## Phase 2 — Analysis
+## Phase 2 — Analysis (deep)
 
-From discovery, determine:
+From discovery, determine and **write down** (for use in Phase 3):
 
-- **Purpose** — What the software does (one paragraph, grounded in README and code).
-- **Architecture** — Major components and how they interact.
-- **Data flow** — Request/job lifecycle or main processing pipeline.
-- **Dependencies** — Runtime and dev dependencies worth calling out.
-- **Configuration** — Env vars, config files, secrets handling (without exposing secret values).
-- **Deployment** — Docker, K8s, serverless, or manual deploy if evidenced in repo.
+- **Purpose** — What the software does (one rich paragraph, grounded in README and code).
+- **Architecture** — Major components, layering, and how they interact (enough to fill the detailed component sections).
+- **Data flow** — At least one primary and one secondary request/job lifecycle with steps and failure points.
+- **Data model** — Main entities/collections and relationships.
+- **Dependencies** — Runtime integrations with config locations.
+- **Configuration** — Env vars / profile keys with purpose.
+- **Security** — AuthN/AuthZ mechanisms and where enforced.
+- **Deployment** — Docker, K8s, serverless, or manual deploy if evidenced.
+- **Design decisions** — Patterns visible in code (facades, strategy, async, multi-provider AI, etc.).
 
-If the project is a library, focus on public API and usage patterns. If it is a CLI, document commands and flags. If it is a web app, document routes and auth if present.
+If the project is a library, focus on public API and usage patterns. If it is a CLI, document commands and flags. If it is a web app, document routes and auth in depth.
 
-## Phase 3 — Write documentation (required)
+## Phase 3 — Write documentation (required, deep)
 
 **Use the Write tool for each file below.** Create `<absolute-output-path>` if needed (Write creates parent directories).
 
 **Do not write to `<project-path>/` directly.** Only write inside `<project-path>/doc/`.
 
+Replace every template placeholder with real content. Expand sections — do not leave bullet stubs when evidence exists.
+
 ### `<absolute-output-path>/README.md`
 
-Use structure from `templates/README-template.md`. Include:
-
-- Project name and one-line description
-- Link to architecture, development, and API docs
-- Quick start (minimal steps to run locally)
-- Table of contents
+Use `templates/README-template.md`. Include purpose paragraph, stack table with evidence, capability table, repo overview diagram, and quick start.
 
 ### `<absolute-output-path>/architecture.md`
 
-Use structure from `templates/architecture-template.md`. Include:
+Use `templates/architecture-template.md`. Must include:
 
-- System context (what talks to what)
-- Component breakdown with file/directory references
-- Mermaid diagram(s) for architecture and/or main request flow
-- Key design decisions visible in code (routing, layering, patterns)
-- External dependencies and integrations
+- System context + context diagram
+- Layer/package overview + component diagram
+- Detailed subsection per major component (collaborators, I/O, failures, evidence)
+- At least one primary sequence flow (+ secondary when present)
+- Data model section (table + ER diagram when relationships are clear)
+- Cross-cutting concerns, dependencies, configuration, deployment, design decisions, gaps
 
 ### `<absolute-output-path>/development.md`
 
-Use structure from `templates/development-template.md`. Include:
-
-- Prerequisites (language version, tools)
-- Clone and install steps from real project files
-- Build, test, lint commands from package scripts or CI
-- Environment variables (name, purpose, default if documented)
-- Common troubleshooting tied to actual project setup
+Use `templates/development-template.md`. Must include prerequisites, env/profiles, build/run/test, layout diagram, where-to-change map, Docker/Compose/K8s when present, CI, debugging, troubleshooting.
 
 ### `<absolute-output-path>/api-reference.md`
 
-Use structure from `templates/api-reference-template.md`. Include:
-
-- HTTP endpoints, CLI commands, or exported symbols — whichever is the public surface
-- For each: method/path or signature, purpose, parameters, response or return type
-- Link to source files defining each interface
-
-Read templates from this skill's `templates/` folder for section headings; replace every placeholder with content from the codebase.
+Use `templates/api-reference-template.md`. Must include auth section, full endpoint index, and a **detailed section per endpoint** (params, schemas from DTOs, responses, errors). Table-only API docs are insufficient.
 
 ## Phase 3.5 — Verify files on disk
 
-Before Phase 4, confirm all four files exist **only under `doc/`**:
+Before Phase 4, confirm all four required files exist **under `doc/`**:
 
-1. Use Glob on `<absolute-output-path>/**/*.md` — must find exactly the four files.
-2. Use Read on each file to confirm non-empty content.
+1. Use Glob on `<absolute-output-path>/**/*.md` — must include `README.md`, `architecture.md`, `development.md`, and `api-reference.md` (additional files such as `modules.md` are allowed).
+2. Use Read on each of the four required files to confirm non-empty content.
 3. Confirm **no** new documentation `.md` files were written to `<project-path>/` (root). The project README may already exist; do not overwrite or duplicate it with generated docs.
-4. If any file is missing, empty, or written to the wrong location, fix it now. **Do not finish until all four exist under `doc/`.**
+4. If any required file is missing, empty, or written to the wrong location, fix it now. **Do not finish until all four required files exist under `doc/`.**
 
 ## Phase 4 — Quality check
 
@@ -171,7 +186,7 @@ Respond with:
 2. **Files written** — Full absolute paths under `<project-path>/doc/` (must list all four).
 3. **Highlights** — 3–5 key architectural or usage findings (brief; details belong in the files).
 4. **Gaps** — Anything you could not determine from the codebase.
-5. **Suggested next steps** — Optional deeper docs (ADRs, runbooks) if relevant.
+5. **Suggested next steps** — Recommend `/document-modules <project-path>` to produce `doc/modules.md` (functional/technical module boundaries). Optionally mention ADRs or runbooks if relevant.
 
 ## Constraints
 
@@ -179,4 +194,6 @@ Respond with:
 - Do not copy large blocks of source into docs; summarize and link to files.
 - Do not document credentials, tokens, or private keys.
 - Do not write documentation outside `<project-path>/doc/`.
+- Do not write under the documentation toolkit's `doc/` when the target is a different project.
+- If the target project cannot be read, abort with no file writes.
 - Prefer updating existing pages under `doc/` over duplicating content in the project README.

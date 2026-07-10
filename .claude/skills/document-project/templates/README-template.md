@@ -6,36 +6,57 @@
 
 | Document | Description |
 |----------|-------------|
-| [Architecture](./architecture.md) | System design, components, and data flow |
-| [Development](./development.md) | Local setup, build, test, and contribution |
-| [API reference](./api-reference.md) | Public APIs, endpoints, or module surface |
+| [Architecture](./architecture.md) | Deep system design, components, flows, and diagrams |
+| [Development](./development.md) | Local setup, build, test, layout, and troubleshooting |
+| [API reference](./api-reference.md) | Full public HTTP/CLI/library surface |
+| [Modules](./modules.md) | Functional and technical module boundaries (after `/document-modules`) |
+
+## What this system does
+
+{{PURPOSE_PARAGRAPH}}
 
 ## Quick start
-
-<!-- Replace with verified steps from the project's install/run scripts -->
 
 1. Prerequisites: {{PREREQUISITES}}
 2. Install: `{{INSTALL_COMMAND}}`
 3. Run: `{{RUN_COMMAND}}`
 4. Test: `{{TEST_COMMAND}}`
 
+See [Development](./development.md) for profiles, Docker/Compose, and debugging.
+
 ## Repository overview
 
-<!-- Brief map of top-level directories and their roles -->
+| Path | Purpose | Notable contents |
+|------|---------|------------------|
+| `{{PATH}}` | {{PURPOSE}} | {{NOTABLE}} |
 
-| Path | Purpose |
-|------|---------|
-| `{{PATH}}` | {{PURPOSE}} |
+```mermaid
+flowchart TB
+  subgraph repo [{{PROJECT_NAME}}]
+    {{TOP_LEVEL_NODES}}
+  end
+```
 
 ## Stack
 
-<!-- From manifest files -->
+| Concern | Choice | Evidence |
+|---------|--------|----------|
+| Language | {{LANGUAGE}} | `{{PATH}}` |
+| Framework / runtime | {{FRAMEWORK}} | `{{PATH}}` |
+| Build tool | {{BUILD_TOOL}} | `{{PATH}}` |
+| Data store | {{DATASTORE}} | `{{PATH}}` |
+| Auth | {{AUTH}} | `{{PATH}}` |
+| Key integrations | {{INTEGRATIONS}} | `{{PATH}}` |
 
-- **Language:** {{LANGUAGE}}
-- **Framework / runtime:** {{FRAMEWORK}}
-- **Package manager:** {{PACKAGE_MANAGER}}
+## Key capabilities
+
+| Capability | Summary | Where to look |
+|------------|---------|---------------|
+| {{CAPABILITY}} | {{SUMMARY}} | `{{PATH}}` |
 
 ## Further reading
 
 - Project README: `{{README_PATH}}`
 - Source entry point: `{{ENTRY_POINT}}`
+- Architecture: [architecture.md](./architecture.md)
+- API: [api-reference.md](./api-reference.md)
